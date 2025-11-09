@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Online Ticket Booking</title>
+ <style>
+ body {
+ font-family: Arial, sans-serif;
+ background: #f5f7fa;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ margin: 0;
+ padding: 20px;
+ }
+ h1 {
+ color: #333;
+}
+ .screen {
+ background: #ddd;
+ height: 20px;
+ width: 80%;
+ margin: 20px 0;
+ border-radius: 5px;
+ text-align: center;
+ font-size: 12px;
+ padding: 3px;
+ color: #555;
+ }
+ .container {
+ display: grid;
+ grid-template-columns: repeat(8, 40px);
+ gap: 10px;
+ justify-content: center;
+ }
+ .seat {
+ width: 40px;
+ height: 40px;
+ background: #eee;
+ border-radius: 5px;
+ cursor: pointer;
+ transition: 0.2s;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ }
+ .seat:hover {
+ background: #b8e994;
+ }
+ .selected {
+ background: #38ada9;
+ color: white;
+ }
+.booked {
+ background: #636e72;
+ color: white;
+ cursor: not-allowed;
+ }
+ .info {
+ margin-top: 20px;
+ font-size: 16px;
+ }
+ button {
+ margin-top: 15px;
+ padding: 10px 20px;
+ border: none;
+ background: #0984e3;
+ color: white;
+ border-radius: 5px;
+ cursor: pointer;
+ }
+ button:hover {
+ background: #74b9ff;
+ }
+ </style>
+ </head>
+ <body>
+ <h1> OnlineTicket Booking</h1>
+ <div class="screen">SCREEN</div>
+ <div class="container" id="seats"></div>
+ <div class="info">
+ Selected Seats: <span id="selectedSeats">None</span><br />
+ Total Price: ₹<span id="totalPrice">0</span>
+ </div>
+ <input
+ type="text"
+ id="username"
+ placeholder="Enter your name"
+ style="margin-top:15px; padding:8px;"
+/>
+ <br />
+ <button onclick="bookSeats()">Book Now</button>
+ <script>
+ const seatContainer = document.getElementById("seats");
+ const selectedSeatsText = document.getElementById("selectedSeats");
+ const totalPriceText = document.getElementById("totalPrice");
+ const pricePerSeat = 120;
+ let selectedSeats = [];
+ let bookedSeats = JSON.parse(localStorage.getItem("bookedSeats")) | [];
+ // Generate seats
+ const rows = ["A", "B", "C", "D"];
+ rows.forEach((row) => {
+ for (let i = 1; i <= 8; i++) {
+ const seat = document.createElement("div");
+ seat.classList.add("seat");
+ const seatId = row + i;
+ seat.innerText = seatId;
+ if (bookedSeats.includes(seatId)) seat.classList.add("booked");
+ seat.addEventListener("click", () => toggleSeat(seat, seatId));
+ seatContainer.appendChild(seat);
+ }
+ });
+ function toggleSeat(seat, id) {
+ if (seat.classList.contains("booked")) return;
+ if (seat.classList.contains("selected")) {
+ seat.classList.remove("selected");
+ selectedSeats = selectedSeats.filter((s) => s !== id);
+ } else {
+ seat.classList.add("selected");
+ selectedSeats.push(id);
+ }
+ updateInfo();
+ }
+ function updateInfo() {
+selectedSeatsText.textContent = selectedSeats.length
+ ? selectedSeats.join(", ")
+ : "None";
+ totalPriceText.textContent = selectedSeats.length * pricePerSeat;
+ }
+ function bookSeats() {
+ const name = document.getElementById("username").value.trim();
+ if (!name) return alert("Please enter your name.");
+ if (selectedSeats.length === 0)
+ return alert("Select at least one seat.");
+ bookedSeats = [...bookedSeats, ...selectedSeats];
+ localStorage.setItem("bookedSeats", JSON.stringify(bookedSeats));
+ alert(`Booking confirmed for ${name}\nSeats: ${selectedSeats.join(", ")}`);
+ location.reload();
+ }
+ </script>
+ </body>
+ </html>
